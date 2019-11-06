@@ -1,133 +1,90 @@
 import React, { Component } from "react";
-import QuestionForm from "./questionadd";
+import { getQuestions } from "./question";
+import CreateQuestionpPaper from "./createquestionpaper";
+import ViewTests from "./viewquestionpaper";
 
-class MainComponent extends Component {
+class HomeScreen extends Component {
   state = {
-    question: [],
+    question: getQuestions(),
     view: -1,
-    editIndex: -1
+    Tests: []
+  };
+  Submit = test => {
+    this.state.Tests.push(test);
+    this.setState({ view: -1 });
+    console.log(test);
   };
   handleview = v => {
     this.setState({ view: v });
   };
-  submit = data => {
-    let question = [...this.state.question];
-    if (this.state.view === 3) {
-      question[this.state.editIndex] = data;
-    } else {
-      question.push(data);
-    }
-    this.setState({ question });
-    this.setState({ view: 2 });
-  };
-  handleEdit = index => {
-    this.setState({ editIndex: index, view: 3 });
-  };
-  handleDelete = index => {
-    let question = [...this.state.question];
-    question.splice(index, 1);
-    this.setState({ question });
-  };
   render() {
-    const { question, editIndex } = this.state;
-    let edit = {
-      question: "",
-      optionA: "",
-      optionB: "",
-      optionC: "",
-      optionD: "",
-      correctanswer: ""
-    };
-    let mode = "";
-    if (this.state.view === 3) {
-      mode = "edit";
-      edit = { ...question[editIndex] };
-    }
+    const { view, question, Tests } = this.state;
     return (
       <div className="container">
-        {this.state.view === -1 ? (
+        {view === -1 ? (
           <div>
+            <button
+              className="btn btn-primary m-2"
+              onClick={() => this.handleview(0)}
+            >
+              Question Bank
+            </button>
             <button
               className="btn btn-primary m-2"
               onClick={() => this.handleview(1)}
             >
-              Add Question
+              Create Question Paper
             </button>
             <button
               className="btn btn-primary m-2"
               onClick={() => this.handleview(2)}
             >
-              Question Bank
+              View Question Paper
             </button>
           </div>
         ) : (
           ""
         )}
-
-        {this.state.view >= 1 ? (
+        {view > -1 ? (
+          <button
+            className="btn btn-primary m-2"
+            onClick={() => this.handleview(-1)}
+          >
+            Home
+          </button>
+        ) : (
+          ""
+        )}
+        {view === 0 ? (
           <div>
-            <button
-              className="btn btn-primary m-2"
-              onClick={() => this.handleview(-1)}
-            >
-              Home
-            </button>
+            <h3>Question Bank</h3>
+            {question.map((show, index) => (
+              <div key={index}>
+                Q {index + 1} . {show.qnText}
+                <ul>
+                  <li>A. {show.A}</li>
+                  <li>B. {show.B}</li>
+                  <li>C. {show.C}</li>
+                  <li>D. {show.D}</li>
+                  <li>Answer. {show.ans}</li>
+                </ul>
+              </div>
+            ))}
           </div>
         ) : (
           ""
         )}
-        {this.state.view === 1 ? (
-          <div>
-            <QuestionForm
-              submit={this.submit}
-              edit={edit}
-              mode={mode}
-            ></QuestionForm>
-          </div>
+        {view === 1 ? (
+          <CreateQuestionpPaper question={question} Submit={this.Submit} />
         ) : (
           ""
         )}
-        {this.state.view === 2 ? (
-          <div>
-            <h4>Question Bank</h4>
-            {this.state.question.length === 0
-              ? "No Question have been added so far"
-              : this.state.question.map((ques, index) => (
-                  <div key={index}>
-                    Q {index + 1}. {ques.question}
-                    <button
-                      className="btn btn-warning m-2"
-                      onClick={() => this.handleEdit(index)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-warning m-2"
-                      onClick={() => this.handleDelete(index)}
-                    >
-                      Delete
-                    </button>
-                    <ul>
-                      <li>A.{ques.optionA}</li>
-                      <li>B.{ques.optionB}</li>
-                      <li>C.{ques.optionC}</li>
-                      <li>D.{ques.optionD}</li>
-                      <li>Answer.{ques.correctanswer}</li>
-                    </ul>
-                  </div>
-                ))}
-          </div>
-        ) : (
-          ""
-        )}
-        {this.state.view === 3 ? (
-          <div>
-            <QuestionForm
-              submit={this.submit}
-              edit={edit}
-              mode={mode}
-            ></QuestionForm>
-          </div>
+        {view === 2 ? (
+          Tests.length === 0 ? (
+            <h4>No Test is created</h4>
+          ) : (
+            <ViewTests Tests={Tests} />
+          )
         ) : (
           ""
         )}
@@ -135,5 +92,4 @@ class MainComponent extends Component {
     );
   }
 }
-
-export default MainComponent;
+export default HomeScreen;
